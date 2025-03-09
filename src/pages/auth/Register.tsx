@@ -4,7 +4,7 @@ import { GoogleLogo } from "../../assets";
 import { InputField } from "./components";
 import { useGoogleLogin } from "@react-oauth/google";
 
-import { auth } from "../../firebase/setup"; // Đảm bảo đường dẫn chính xác
+import { auth } from "../../firebase/setup";
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult  } from "firebase/auth";
 
 const Register = () => {
@@ -101,40 +101,46 @@ const Register = () => {
             setError("Invalid phone number format!");
             return;
         }
+        console.log(form.phone);
         if (form.password.length < 6) {
-            setError("Password must be at least 6 characters!");
+            setError("Invalid phone number format!");
             return;
         }
+
         if (form.password !== form.confirmPassword) {
             setError("Passwords do not match!");
             return;
         }
-    
+
         try {
             setError("");
     
-            // Kiểm tra nếu reCAPTCHA chưa tồn tại thì khởi tạo lại
+            // Kiểm tra và chỉ khởi tạo reCAPTCHA nếu chưa tồn tại
             if (!window.recaptchaVerifier) {
                 window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
                     size: "invisible",
-                    callback: (response: any) => {
+                    callback: (response: string) => {
                         console.log("reCAPTCHA solved:", response);
                     }
                 });
             }
     
             const appVerifier = window.recaptchaVerifier;
-            const result = await signInWithPhoneNumber(auth, `+84${form.phone.slice(1)}`, appVerifier);
+            const result = await signInWithPhoneNumber(auth, "+84" + form.phone.slice(1), appVerifier);
             setConfirmationResult(result);
             setIsOtpModalOpen(true);
-    
+
             console.log("OTP sent successfully");
+            console.log("Confirmation result:", result);
+            console.log("isOtpModalOpen set to true");
         } catch (error) {
             console.error("Error sending OTP:", error);
             setError("Failed to send OTP. Try again!");
         }
+
+        // setError("");
+        // navigate("/home");
     };
-    
 
     const handleOtpChange = (index: number, value: string) => {
         if (!/^\d*$/.test(value)) return;
