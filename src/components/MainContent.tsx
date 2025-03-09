@@ -165,6 +165,7 @@ const CreatePostModal = ({ onClose }: { onClose: () => void }) => {
     );
 };
 
+
 const PostCard = ({
     user,
     avatar,
